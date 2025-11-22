@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: mingle-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mingle
+    username: mingle
+    password: mingle_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:placeholder}
+            client-secret: ${GOOGLE_CLIENT_SECRET:placeholder}
+            scope: openid,profile,email
+          facebook:
+            client-id: ${FACEBOOK_CLIENT_ID:placeholder}
+            client-secret: ${FACEBOOK_CLIENT_SECRET:placeholder}
+            scope: public_profile,email
+  
+file:
+  upload-dir: uploads
