@@ -1,0 +1,15 @@
+<nav class="bg-pink-600 p-4 text-white shadow-md">
+    <nav class="bg-pink-600 p-4 text-white shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <a routerLink="/home" class="text-2xl font-bold">Mingle</a>
+            <div class="space-x-4">
+                <a routerLink="/home" routerLinkActive="font-bold underline" class="hover:text-pink-200">Discover</a>
+                <a routerLink="/matches" routerLinkActive="font-bold underline" class="hover:text-pink-200">Matches</a>
+                <a routerLink="/profile" routerLinkActive="font-bold underline" class="hover:text-pink-200">Profile</a>
+                <button *ngIf="isLoggedIn" (click)="logout()"
+                    class="bg-white text-pink-600 px-3 py-1 rounded hover:bg-pink-100">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <router-outlet></router-outlet>

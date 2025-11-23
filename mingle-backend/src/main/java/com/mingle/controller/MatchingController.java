@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/matching")
@@ -32,6 +33,20 @@ public class MatchingController {
     @PreAuthorize("hasRole('USER')")
     public List<User> getCandidates(@CurrentUser UserPrincipal userPrincipal,
             @RequestParam(defaultValue = "50") Double distance) {
-        return matchingService.findMatches(userPrincipal.getId(), distance);
+        return matchingService.findCandidates(userPrincipal.getId(), distance);
+    }
+
+    @PostMapping("/like/{userId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> likeUser(@CurrentUser UserPrincipal userPrincipal,
+            @PathVariable Long userId) {
+        boolean isMatch = matchingService.likeUser(userPrincipal.getId(), userId);
+        return ResponseEntity.ok(Map.of("match", isMatch));
+    }
+
+    @GetMapping("/matches")
+    @PreAuthorize("hasRole('USER')")
+    public List<User> getMatches(@CurrentUser UserPrincipal userPrincipal) {
+        return matchingService.findMatches(userPrincipal.getId());
     }
 }
