@@ -26,6 +26,10 @@ export class MatchingService {
         return this.http.post(`${this.apiUrl}/like/${userId}`, {}, { headers: this.getHeaders() });
     }
 
+    dislikeUser(userId: number): Observable<any> {
+        return this.http.post(`${this.apiUrl}/dislike/${userId}`, {}, { headers: this.getHeaders() });
+    }
+
     getMatches(): Observable<any[]> {
         return this.http.get<any[]>(`${this.apiUrl}/matches`, { headers: this.getHeaders() });
     }

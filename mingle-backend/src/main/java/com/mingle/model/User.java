@@ -37,6 +37,16 @@ public class User {
     private String gender;
     private String interestedIn;
 
+    private java.time.LocalDate dob;
+
+    @ElementCollection
+    private java.util.List<String> photos;
+
+    // Preferences
+    private Integer minAgePreference;
+    private Integer maxAgePreference;
+    private Double maxDistancePreference; // in Km
+
     // Location (Latitude/Longitude) - simplified for now, will use PostGIS later
     private Double latitude;
     private Double longitude;

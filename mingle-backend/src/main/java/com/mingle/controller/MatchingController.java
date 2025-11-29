@@ -44,6 +44,14 @@ public class MatchingController {
         return ResponseEntity.ok(Map.of("match", isMatch));
     }
 
+    @PostMapping("/dislike/{userId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> dislikeUser(@CurrentUser UserPrincipal userPrincipal,
+            @PathVariable Long userId) {
+        matchingService.dislikeUser(userPrincipal.getId(), userId);
+        return ResponseEntity.ok("User disliked");
+    }
+
     @GetMapping("/matches")
     @PreAuthorize("hasRole('USER')")
     public List<User> getMatches(@CurrentUser UserPrincipal userPrincipal) {

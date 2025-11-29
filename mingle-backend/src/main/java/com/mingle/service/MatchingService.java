@@ -19,7 +19,10 @@ public class MatchingService {
     private UserRepository userRepository;
 
     @Autowired
-    private LikeRepository likeRepository;
+    private com.mingle.repository.LikeRepository likeRepository;
+
+    @Autowired
+    private com.mingle.repository.DislikeRepository dislikeRepository;
 
     public void updateUserLocation(Long userId, Double lat, Double lon) {
         User user = userRepository.findById(userId)
@@ -34,7 +37,6 @@ public class MatchingService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (currentUser.getLatitude() == null || currentUser.getLongitude() == null) {
-            // Return empty list if location not set, or maybe throw exception
             return new ArrayList<>();
         }
 
@@ -43,17 +45,55 @@ public class MatchingService {
                 currentUser.getLongitude(), distanceKm);
 
         // Filter out users already liked
-        // This is a naive implementation. For production, this should be done in the
-        // query.
-        List<Like> likes = likeRepository.findAll(); // Optimization needed here for real app
+        List<Like> likes = likeRepository.findAll();
         Set<Long> likedUserIds = likes.stream()
                 .filter(like -> like.getLikerId().equals(userId))
                 .map(Like::getLikeeId)
                 .collect(Collectors.toSet());
 
+        // Filter out users already disliked
+        List<com.mingle.model.Dislike> dislikes = dislikeRepository.findAll();
+        Set<Long> dislikedUserIds = dislikes.stream()
+                .filter(dislike -> dislike.getDislikerId().equals(userId))
+                .map(com.mingle.model.Dislike::getDislikeeId)
+                .collect(Collectors.toSet());
+
         return nearbyUsers.stream()
                 .filter(user -> !likedUserIds.contains(user.getId()))
+                .filter(user -> !dislikedUserIds.contains(user.getId()))
+                .filter(user -> matchesPreferences(currentUser, user))
                 .collect(Collectors.toList());
+    }
+
+    private boolean matchesPreferences(User currentUser, User candidate) {
+        // Gender check
+        if (currentUser.getInterestedIn() != null && !currentUser.getInterestedIn().equalsIgnoreCase("BOTH")) {
+            if (!currentUser.getInterestedIn().equalsIgnoreCase(candidate.getGender())) {
+                return false;
+            }
+        }
+
+        // Age check
+        if (currentUser.getMinAgePreference() != null && currentUser.getMaxAgePreference() != null
+                && candidate.getDob() != null) {
+            int age = java.time.Period.between(candidate.getDob(), java.time.LocalDate.now()).getYears();
+            if (age < currentUser.getMinAgePreference() || age > currentUser.getMaxAgePreference()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void dislikeUser(Long dislikerId, Long dislikeeId) {
+        if (dislikeRepository.existsByDislikerIdAndDislikeeId(dislikerId, dislikeeId)) {
+            return;
+        }
+        com.mingle.model.Dislike dislike = com.mingle.model.Dislike.builder()
+                .dislikerId(dislikerId)
+                .dislikeeId(dislikeeId)
+                .build();
+        dislikeRepository.save(dislike);
     }
 
     public boolean likeUser(Long likerId, Long likeeId) {
